@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data to bronze",
-				"type": "Copy",
+				"name": "Get Big JSON",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -13,7 +13,6 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": [],
 				"typeProperties": {
 					"source": {
 						"type": "JsonSource",
@@ -27,210 +26,31 @@
 							"type": "JsonReadSettings"
 						}
 					},
-					"sink": {
-						"type": "ParquetSink",
-						"storeSettings": {
-							"type": "AzureBlobStorageWriteSettings",
-							"copyBehavior": "FlattenHierarchy"
-						},
-						"formatSettings": {
-							"type": "ParquetWriteSettings"
-						}
-					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"mappings": [
-							{
-								"source": {
-									"path": "$['movie'][0]['Id']"
-								},
-								"sink": {
-									"name": "Id",
-									"type": "Int16"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['Title']"
-								},
-								"sink": {
-									"name": "Title",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['Overview']"
-								},
-								"sink": {
-									"name": "Overview",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['Tagline']"
-								},
-								"sink": {
-									"name": "Tagline",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['Budget']"
-								},
-								"sink": {
-									"name": "Budget",
-									"type": "Double"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['Revenue']"
-								},
-								"sink": {
-									"name": "Revenue",
-									"type": "Double"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['ImdbUrl']"
-								},
-								"sink": {
-									"name": "ImdbUrl",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['TmdbUrl']"
-								},
-								"sink": {
-									"name": "TmdbUrl",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['PosterUrl']"
-								},
-								"sink": {
-									"name": "PosterUrl",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['BackdropUrl']"
-								},
-								"sink": {
-									"name": "BackdropUrl",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['OriginalLanguage']"
-								},
-								"sink": {
-									"name": "OriginalLanguage",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['ReleaseDate']"
-								},
-								"sink": {
-									"name": "ReleaseDate",
-									"type": "DateTime"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['RunTime']"
-								},
-								"sink": {
-									"name": "RunTime",
-									"type": "Int16"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['Price']"
-								},
-								"sink": {
-									"name": "Price",
-									"type": "Double"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['CreatedDate']"
-								},
-								"sink": {
-									"name": "CreatedDate",
-									"type": "DateTime"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['UpdatedDate']"
-								},
-								"sink": {
-									"name": "UpdatedDate",
-									"type": "DateTime"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['UpdatedBy']"
-								},
-								"sink": {
-									"name": "UpdatedBy",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['CreatedBy']"
-								},
-								"sink": {
-									"name": "CreatedBy",
-									"type": "String"
-								}
-							},
-							{
-								"source": {
-									"path": "$['movie'][0]['genres']"
-								},
-								"sink": {
-									"name": "genres",
-									"type": "String"
-								}
-							}
-						],
-						"mapComplexValuesToString": true
-					}
-				},
-				"inputs": [
-					{
+					"dataset": {
 						"referenceName": "movie_blob",
 						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Flatten",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Big JSON",
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
-				"outputs": [
-					{
-						"referenceName": "DataFactoryOut",
-						"type": "DatasetReference",
-						"parameters": {
-							"tableName": "bronze"
-						}
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Big JSON').output.value",
+						"type": "Expression"
 					}
-				]
+				}
 			}
 		],
 		"annotations": []
