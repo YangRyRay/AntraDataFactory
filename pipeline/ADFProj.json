@@ -1,0 +1,21 @@
+{
+	"name": "ADFProj",
+	"properties": {
+		"activities": [
+			{
+				"name": "movie_pipelines",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "movie_pipelines",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}
