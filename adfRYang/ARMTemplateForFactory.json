@@ -48,6 +48,83 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/bronze2silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DataFactoryOut",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableName": "bronze"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DataFactoryOut",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableName": "silver"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DataFactoryOut')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/movie_pipelines')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -103,7 +180,9 @@
 								"parameters": {},
 								"datasetParameters": {
 									"source1": {},
-									"sink1": {}
+									"sink1": {
+										"tableName": "bronze"
+									}
 								}
 							},
 							"staging": {},
@@ -144,6 +223,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().tableName",
+							"type": "Expression"
+						},
 						"container": "data-factory-out"
 					},
 					"compressionCodec": "snappy"
@@ -416,7 +499,7 @@
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "testOut",
+								"referenceName": "DataFactoryOut",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -450,6 +533,8 @@
 						"          IngestDate = currentDate(\"yyyy.MM.dd\")) ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     filePattern:'bronze_[n]',",
 						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> sink1"
@@ -458,7 +543,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/movie_blob')]",
-				"[concat(variables('factoryId'), '/datasets/testOut')]"
+				"[concat(variables('factoryId'), '/datasets/DataFactoryOut')]"
 			]
 		}
 	]
