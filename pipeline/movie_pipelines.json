@@ -14,38 +14,6 @@
 					},
 					"waitOnCompletion": true
 				}
-			},
-			{
-				"name": "bronze2silver",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "raw2bronze",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"waitOnCompletion": true
-				}
-			},
-			{
-				"name": "silverUpdate",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "bronze2silver",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"waitOnCompletion": true
-				}
 			}
 		],
 		"annotations": []
