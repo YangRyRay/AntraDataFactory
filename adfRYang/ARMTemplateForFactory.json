@@ -85,7 +85,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data1",
+						"name": "Copy data to bronze",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -110,15 +110,181 @@
 								}
 							},
 							"sink": {
-								"type": "JsonSink",
+								"type": "ParquetSink",
 								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
+									"type": "AzureBlobStorageWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
 								},
 								"formatSettings": {
-									"type": "JsonWriteSettings"
+									"type": "ParquetWriteSettings"
 								}
 							},
-							"enableStaging": false
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['movie'][0]['Id']"
+										},
+										"sink": {
+											"name": "Id"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['Title']"
+										},
+										"sink": {
+											"name": "Title"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['Overview']"
+										},
+										"sink": {
+											"name": "Overview"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['Tagline']"
+										},
+										"sink": {
+											"name": "Tagline"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['Budget']"
+										},
+										"sink": {
+											"name": "Budget"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['Revenue']"
+										},
+										"sink": {
+											"name": "Revenue"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['ImdbUrl']"
+										},
+										"sink": {
+											"name": "ImdbUrl"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['TmdbUrl']"
+										},
+										"sink": {
+											"name": "TmdbUrl"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['PosterUrl']"
+										},
+										"sink": {
+											"name": "PosterUrl"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['BackdropUrl']"
+										},
+										"sink": {
+											"name": "BackdropUrl"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['OriginalLanguage']"
+										},
+										"sink": {
+											"name": "OriginalLanguage"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['ReleaseDate']"
+										},
+										"sink": {
+											"name": "ReleaseDate"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['RunTime']"
+										},
+										"sink": {
+											"name": "RunTime"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['Price']"
+										},
+										"sink": {
+											"name": "Price"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['CreatedDate']"
+										},
+										"sink": {
+											"name": "CreatedDate"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['UpdatedDate']"
+										},
+										"sink": {
+											"name": "UpdatedDate"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['UpdatedBy']"
+										},
+										"sink": {
+											"name": "UpdatedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['CreatedBy']"
+										},
+										"sink": {
+											"name": "CreatedBy"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['genres'][0]['id']"
+										},
+										"sink": {
+											"name": "id"
+										}
+									},
+									{
+										"source": {
+											"path": "$['movie'][0]['genres'][0]['name']"
+										},
+										"sink": {
+											"name": "name"
+										}
+									}
+								]
+							}
 						},
 						"inputs": [
 							{
@@ -129,9 +295,11 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "testing_blob",
+								"referenceName": "DataFactoryOut",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"tableName": "bronze"
+								}
 							}
 						]
 					}
@@ -144,7 +312,36 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/movie_blob')]",
-				"[concat(variables('factoryId'), '/datasets/testing_blob')]"
+				"[concat(variables('factoryId'), '/datasets/DataFactoryOut')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataFactoryOut')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobMovie",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "data-factory-out"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]"
 			]
 		},
 		{
@@ -162,29 +359,6 @@
 					"location": {
 						"type": "AzureBlobStorageLocation",
 						"container": "movie"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/testing_blob')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobMovie",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"container": "testing"
 					}
 				},
 				"schema": {}
