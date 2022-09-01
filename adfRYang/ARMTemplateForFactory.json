@@ -85,8 +85,8 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data to bronze",
-						"type": "Copy",
+						"name": "ExplodeMovieJSON",
+						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -97,223 +97,22 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"wildcardFileName": "*.json",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
+							"dataflow": {
+								"referenceName": "ExplodeMovieJSON",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
 								}
 							},
-							"sink": {
-								"type": "ParquetSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings",
-									"copyBehavior": "FlattenHierarchy"
-								},
-								"formatSettings": {
-									"type": "ParquetWriteSettings"
-								}
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
 							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"path": "$['movie'][0]['Id']"
-										},
-										"sink": {
-											"name": "Id",
-											"type": "Int16"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['Title']"
-										},
-										"sink": {
-											"name": "Title",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['Overview']"
-										},
-										"sink": {
-											"name": "Overview",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['Tagline']"
-										},
-										"sink": {
-											"name": "Tagline",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['Budget']"
-										},
-										"sink": {
-											"name": "Budget",
-											"type": "Double"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['Revenue']"
-										},
-										"sink": {
-											"name": "Revenue",
-											"type": "Double"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['ImdbUrl']"
-										},
-										"sink": {
-											"name": "ImdbUrl",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['TmdbUrl']"
-										},
-										"sink": {
-											"name": "TmdbUrl",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['PosterUrl']"
-										},
-										"sink": {
-											"name": "PosterUrl",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['BackdropUrl']"
-										},
-										"sink": {
-											"name": "BackdropUrl",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['OriginalLanguage']"
-										},
-										"sink": {
-											"name": "OriginalLanguage",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['ReleaseDate']"
-										},
-										"sink": {
-											"name": "ReleaseDate",
-											"type": "DateTime"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['RunTime']"
-										},
-										"sink": {
-											"name": "RunTime",
-											"type": "Int16"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['Price']"
-										},
-										"sink": {
-											"name": "Price",
-											"type": "Double"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['CreatedDate']"
-										},
-										"sink": {
-											"name": "CreatedDate",
-											"type": "DateTime"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['UpdatedDate']"
-										},
-										"sink": {
-											"name": "UpdatedDate",
-											"type": "DateTime"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['UpdatedBy']"
-										},
-										"sink": {
-											"name": "UpdatedBy",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['CreatedBy']"
-										},
-										"sink": {
-											"name": "CreatedBy",
-											"type": "String"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['genres']"
-										},
-										"sink": {
-											"name": "genres",
-											"type": "String"
-										}
-									}
-								],
-								"mapComplexValuesToString": true
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "movie_blob",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "DataFactoryOut",
-								"type": "DatasetReference",
-								"parameters": {
-									"tableName": "bronze"
-								}
-							}
-						]
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -323,8 +122,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/movie_blob')]",
-				"[concat(variables('factoryId'), '/datasets/DataFactoryOut')]"
+				"[concat(variables('factoryId'), '/dataflows/ExplodeMovieJSON')]"
 			]
 		},
 		{
@@ -357,6 +155,110 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SingleMovie')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobMovie",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "movie_0.json",
+						"container": "movie"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"movie": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"Id": {
+										"type": "integer"
+									},
+									"Title": {
+										"type": "string"
+									},
+									"Overview": {
+										"type": "string"
+									},
+									"Tagline": {
+										"type": "string"
+									},
+									"Budget": {
+										"type": "number"
+									},
+									"Revenue": {
+										"type": "number"
+									},
+									"ImdbUrl": {
+										"type": "string"
+									},
+									"TmdbUrl": {
+										"type": "string"
+									},
+									"PosterUrl": {
+										"type": "string"
+									},
+									"BackdropUrl": {
+										"type": "string"
+									},
+									"OriginalLanguage": {
+										"type": "string"
+									},
+									"ReleaseDate": {
+										"type": "string"
+									},
+									"RunTime": {
+										"type": "integer"
+									},
+									"Price": {
+										"type": "number"
+									},
+									"CreatedDate": {
+										"type": "string"
+									},
+									"UpdatedDate": {
+										"type": "null"
+									},
+									"UpdatedBy": {
+										"type": "null"
+									},
+									"CreatedBy": {
+										"type": "null"
+									},
+									"genres": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/movie_blob')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -371,6 +273,109 @@
 					"location": {
 						"type": "AzureBlobStorageLocation",
 						"container": "movie"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"movie": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"Id": {
+										"type": "integer"
+									},
+									"Title": {
+										"type": "string"
+									},
+									"Overview": {
+										"type": "string"
+									},
+									"Tagline": {
+										"type": "string"
+									},
+									"Budget": {
+										"type": "number"
+									},
+									"Revenue": {
+										"type": "number"
+									},
+									"ImdbUrl": {
+										"type": "string"
+									},
+									"TmdbUrl": {
+										"type": "string"
+									},
+									"PosterUrl": {
+										"type": "string"
+									},
+									"BackdropUrl": {
+										"type": "string"
+									},
+									"OriginalLanguage": {
+										"type": "string"
+									},
+									"ReleaseDate": {
+										"type": "string"
+									},
+									"RunTime": {
+										"type": "integer"
+									},
+									"Price": {
+										"type": "number"
+									},
+									"CreatedDate": {
+										"type": "string"
+									},
+									"UpdatedDate": {
+										"type": "null"
+									},
+									"UpdatedBy": {
+										"type": "null"
+									},
+									"CreatedBy": {
+										"type": "null"
+									},
+									"genres": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/testOut')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobMovie",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "testing"
 					}
 				},
 				"schema": {}
@@ -391,6 +396,63 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ExplodeMovieJSON')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "movie_blob",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "testOut",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          movie as (Id as integer, Title as string, Overview as string, Tagline as string, Budget as double, Revenue as double, ImdbUrl as string, TmdbUrl as string, PosterUrl as string, BackdropUrl as string, OriginalLanguage as string, ReleaseDate as string, RunTime as integer, Price as double, CreatedDate as string, UpdatedDate as string, UpdatedBy as string, CreatedBy as string, genres as (id as integer, name as string)[])[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'arrayOfDocuments') ~> source1",
+						"source1 foldDown(unroll(movie),",
+						"     mapColumn(",
+						"          movie",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"flatten1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     truncate: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/movie_blob')]",
+				"[concat(variables('factoryId'), '/datasets/testOut')]"
+			]
 		}
 	]
 }
