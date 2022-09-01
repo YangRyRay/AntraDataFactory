@@ -128,7 +128,8 @@
 											"path": "$['movie'][0]['Id']"
 										},
 										"sink": {
-											"name": "Id"
+											"name": "Id",
+											"type": "Int16"
 										}
 									},
 									{
@@ -136,7 +137,8 @@
 											"path": "$['movie'][0]['Title']"
 										},
 										"sink": {
-											"name": "Title"
+											"name": "Title",
+											"type": "String"
 										}
 									},
 									{
@@ -144,7 +146,8 @@
 											"path": "$['movie'][0]['Overview']"
 										},
 										"sink": {
-											"name": "Overview"
+											"name": "Overview",
+											"type": "String"
 										}
 									},
 									{
@@ -152,7 +155,8 @@
 											"path": "$['movie'][0]['Tagline']"
 										},
 										"sink": {
-											"name": "Tagline"
+											"name": "Tagline",
+											"type": "String"
 										}
 									},
 									{
@@ -160,7 +164,8 @@
 											"path": "$['movie'][0]['Budget']"
 										},
 										"sink": {
-											"name": "Budget"
+											"name": "Budget",
+											"type": "Double"
 										}
 									},
 									{
@@ -168,7 +173,8 @@
 											"path": "$['movie'][0]['Revenue']"
 										},
 										"sink": {
-											"name": "Revenue"
+											"name": "Revenue",
+											"type": "Double"
 										}
 									},
 									{
@@ -176,7 +182,8 @@
 											"path": "$['movie'][0]['ImdbUrl']"
 										},
 										"sink": {
-											"name": "ImdbUrl"
+											"name": "ImdbUrl",
+											"type": "String"
 										}
 									},
 									{
@@ -184,7 +191,8 @@
 											"path": "$['movie'][0]['TmdbUrl']"
 										},
 										"sink": {
-											"name": "TmdbUrl"
+											"name": "TmdbUrl",
+											"type": "String"
 										}
 									},
 									{
@@ -192,7 +200,8 @@
 											"path": "$['movie'][0]['PosterUrl']"
 										},
 										"sink": {
-											"name": "PosterUrl"
+											"name": "PosterUrl",
+											"type": "String"
 										}
 									},
 									{
@@ -200,7 +209,8 @@
 											"path": "$['movie'][0]['BackdropUrl']"
 										},
 										"sink": {
-											"name": "BackdropUrl"
+											"name": "BackdropUrl",
+											"type": "String"
 										}
 									},
 									{
@@ -208,7 +218,8 @@
 											"path": "$['movie'][0]['OriginalLanguage']"
 										},
 										"sink": {
-											"name": "OriginalLanguage"
+											"name": "OriginalLanguage",
+											"type": "String"
 										}
 									},
 									{
@@ -216,7 +227,8 @@
 											"path": "$['movie'][0]['ReleaseDate']"
 										},
 										"sink": {
-											"name": "ReleaseDate"
+											"name": "ReleaseDate",
+											"type": "DateTime"
 										}
 									},
 									{
@@ -224,7 +236,8 @@
 											"path": "$['movie'][0]['RunTime']"
 										},
 										"sink": {
-											"name": "RunTime"
+											"name": "RunTime",
+											"type": "Int16"
 										}
 									},
 									{
@@ -232,7 +245,8 @@
 											"path": "$['movie'][0]['Price']"
 										},
 										"sink": {
-											"name": "Price"
+											"name": "Price",
+											"type": "Double"
 										}
 									},
 									{
@@ -240,7 +254,8 @@
 											"path": "$['movie'][0]['CreatedDate']"
 										},
 										"sink": {
-											"name": "CreatedDate"
+											"name": "CreatedDate",
+											"type": "DateTime"
 										}
 									},
 									{
@@ -248,7 +263,8 @@
 											"path": "$['movie'][0]['UpdatedDate']"
 										},
 										"sink": {
-											"name": "UpdatedDate"
+											"name": "UpdatedDate",
+											"type": "DateTime"
 										}
 									},
 									{
@@ -256,7 +272,8 @@
 											"path": "$['movie'][0]['UpdatedBy']"
 										},
 										"sink": {
-											"name": "UpdatedBy"
+											"name": "UpdatedBy",
+											"type": "String"
 										}
 									},
 									{
@@ -264,26 +281,21 @@
 											"path": "$['movie'][0]['CreatedBy']"
 										},
 										"sink": {
-											"name": "CreatedBy"
+											"name": "CreatedBy",
+											"type": "String"
 										}
 									},
 									{
 										"source": {
-											"path": "$['movie'][0]['genres'][0]['id']"
+											"path": "$['movie'][0]['genres']"
 										},
 										"sink": {
-											"name": "id"
-										}
-									},
-									{
-										"source": {
-											"path": "$['movie'][0]['genres'][0]['name']"
-										},
-										"sink": {
-											"name": "name"
+											"name": "genres",
+											"type": "String"
 										}
 									}
-								]
+								],
+								"mapComplexValuesToString": true
 							}
 						},
 						"inputs": [
