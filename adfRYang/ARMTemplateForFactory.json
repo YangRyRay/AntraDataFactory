@@ -425,6 +425,9 @@
 					"transformations": [
 						{
 							"name": "flatten1"
+						},
+						{
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
@@ -441,7 +444,11 @@
 						"     ),",
 						"     skipDuplicateMapInputs: false,",
 						"     skipDuplicateMapOutputs: false) ~> flatten1",
-						"flatten1 sink(allowSchemaDrift: true,",
+						"flatten1 derive(DataSource = \"Manual Upload\",",
+						"          IngestTime = currentTimestamp(),",
+						"          Status = \"new\",",
+						"          IngestDate = currentDate(\"yyyy.MM.dd\")) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
