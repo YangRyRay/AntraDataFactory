@@ -28,10 +28,6 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "bronze2silver",
-						"type": "PipelineReference"
-					},
 					"waitOnCompletion": true
 				}
 			},
@@ -48,10 +44,6 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"pipeline": {
-						"referenceName": "silverUpdate",
-						"type": "PipelineReference"
-					},
 					"waitOnCompletion": true
 				}
 			}
