@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "testOut",
+						"referenceName": "DataFactoryOut",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
@@ -49,6 +49,8 @@
 				"          IngestDate = currentDate(\"yyyy.MM.dd\")) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     filePattern:'bronze_[n]',",
 				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sink1"
