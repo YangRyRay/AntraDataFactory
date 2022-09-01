@@ -15,6 +15,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().tableName",
+					"type": "Expression"
+				},
 				"container": "data-factory-out"
 			},
 			"compressionCodec": "snappy"
