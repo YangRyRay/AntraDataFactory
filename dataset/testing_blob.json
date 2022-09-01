@@ -1,0 +1,18 @@
+{
+	"name": "testing_blob",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobMovie",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "testing"
+			}
+		},
+		"schema": {}
+	}
+}
