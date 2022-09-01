@@ -1,0 +1,9 @@
+{
+	"name": "adfRYang",
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "e0a13135-3da1-451a-8ffb-e781642cdd9e",
+		"tenantId": "9a33dba5-5b94-4319-a715-7dd68a992c22"
+	}
+}
