@@ -68,12 +68,7 @@
 						]
 					}
 				],
-				"userProperties": [
-					{
-						"name": "movieDetails",
-						"value": ""
-					}
-				],
+				"userProperties": [],
 				"typeProperties": {
 					"items": {
 						"value": "@activity('Filter Status New').output",
