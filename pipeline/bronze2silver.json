@@ -17,7 +17,15 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "SilverTable",
-						"type": "DataFlowReference"
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source1": {
+								"tableName": "bronze"
+							},
+							"sink1": {
+								"tableName": "silver"
+							}
+						}
 					},
 					"compute": {
 						"coreCount": 8,
