@@ -54,8 +54,64 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data1",
-						"type": "Copy",
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "SilverTable",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"tableName": "bronze"
+									},
+									"sink1": {
+										"tableName": "silver"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"value": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/SilverTable')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bronze2silver2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Bronze Table",
+						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -75,6 +131,111 @@
 									"enablePartitionDiscovery": false
 								}
 							},
+							"dataset": {
+								"referenceName": "DataFactoryOut",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableName": "bronze"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Filter Status New",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Bronze Table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Bronze Table').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@contains(item(), '\"Status\":\"new\"')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Create Silver",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter Status New",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter Status New').output",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Append variable1",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "value",
+										"value": {
+											"value": "@[item().movie,item().movie.*]",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Create Silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"additionalColumns": [
+									{
+										"name": "Silver",
+										"value": {
+											"value": "@variables('value')",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"wildcardFileName": "*.parquet",
+									"enablePartitionDiscovery": false
+								}
+							},
 							"sink": {
 								"type": "ParquetSink",
 								"storeSettings": {
@@ -87,6 +248,16 @@
 							"enableStaging": false,
 							"translator": {
 								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Silver"
+										},
+										"sink": {
+											"name": "Silver"
+										}
+									}
+								],
 								"typeConversion": true,
 								"typeConversionSettings": {
 									"allowDataTruncation": true,
@@ -117,6 +288,11 @@
 				"policy": {
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
+				},
+				"variables": {
+					"value": {
+						"type": "Array"
+					}
 				},
 				"annotations": []
 			},
@@ -238,110 +414,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SingleMovie')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobMovie",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "movie_0.json",
-						"container": "movie"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"movie": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"Id": {
-										"type": "integer"
-									},
-									"Title": {
-										"type": "string"
-									},
-									"Overview": {
-										"type": "string"
-									},
-									"Tagline": {
-										"type": "string"
-									},
-									"Budget": {
-										"type": "number"
-									},
-									"Revenue": {
-										"type": "number"
-									},
-									"ImdbUrl": {
-										"type": "string"
-									},
-									"TmdbUrl": {
-										"type": "string"
-									},
-									"PosterUrl": {
-										"type": "string"
-									},
-									"BackdropUrl": {
-										"type": "string"
-									},
-									"OriginalLanguage": {
-										"type": "string"
-									},
-									"ReleaseDate": {
-										"type": "string"
-									},
-									"RunTime": {
-										"type": "integer"
-									},
-									"Price": {
-										"type": "number"
-									},
-									"CreatedDate": {
-										"type": "string"
-									},
-									"UpdatedDate": {
-										"type": "null"
-									},
-									"UpdatedBy": {
-										"type": "null"
-									},
-									"CreatedBy": {
-										"type": "null"
-									},
-									"genres": {
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"id": {
-													"type": "integer"
-												},
-												"name": {
-													"type": "string"
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/movie_blob')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -445,29 +517,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/testOut')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobMovie",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"container": "testing"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlobMovie')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -543,6 +592,49 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/movie_blob')]",
+				"[concat(variables('factoryId'), '/datasets/DataFactoryOut')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SilverTable')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataFactoryOut",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DataFactoryOut",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DataFactoryOut')]"
 			]
 		}
