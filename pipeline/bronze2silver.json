@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "Make Silver Table",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -19,11 +19,11 @@
 						"referenceName": "SilverTable",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"source1": {
-								"tableName": "bronze"
+							"SinkMovieSilver": {
+								"tableName": "SilverMovie"
 							},
-							"sink1": {
-								"tableName": "silver"
+							"SinkLangSilver": {
+								"tableName": "SilverLanguage"
 							}
 						}
 					},

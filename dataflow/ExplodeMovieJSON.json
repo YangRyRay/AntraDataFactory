@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "DataFactoryOut",
+						"referenceName": "bronze",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"

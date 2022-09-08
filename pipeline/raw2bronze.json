@@ -17,12 +17,7 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "ExplodeMovieJSON",
-						"type": "DataFlowReference",
-						"datasetParameters": {
-							"sink1": {
-								"tableName": "bronze"
-							}
-						}
+						"type": "DataFlowReference"
 					},
 					"compute": {
 						"coreCount": 8,

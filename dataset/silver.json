@@ -1,0 +1,29 @@
+{
+	"name": "silver",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobMovie",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tableName": {
+				"type": "string",
+				"defaultValue": "Silver"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().tableName",
+					"type": "Expression"
+				},
+				"container": "data-factory-out"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
