@@ -1,24 +1,16 @@
 {
-	"name": "DataFactoryOut",
+	"name": "bronze",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobMovie",
 			"type": "LinkedServiceReference"
-		},
-		"parameters": {
-			"tableName": {
-				"type": "string"
-			}
 		},
 		"annotations": [],
 		"type": "Parquet",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"folderPath": {
-					"value": "@dataset().tableName",
-					"type": "Expression"
-				},
+				"folderPath": "bronze",
 				"container": "data-factory-out"
 			},
 			"compressionCodec": "snappy"
