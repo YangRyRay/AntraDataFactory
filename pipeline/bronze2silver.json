@@ -24,6 +24,12 @@
 							},
 							"SinkLangSilver": {
 								"tableName": "SilverLanguage"
+							},
+							"SinkGenreSilver": {
+								"tableName": "SilverGenre"
+							},
+							"SinkGenreMovieSilver": {
+								"tableName": "SilvMovieGenre"
 							}
 						}
 					},
@@ -31,7 +37,11 @@
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Fine"
+					"traceLevel": "None",
+					"runConcurrently": true,
+					"cacheSinks": {
+						"firstRowOnly": true
+					}
 				}
 			}
 		],
