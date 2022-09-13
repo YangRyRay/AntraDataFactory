@@ -599,6 +599,7 @@
 						"          Price = movie.Price,",
 						"          CreatedDate = movie.CreatedDate,",
 						"          UpdatedDate = movie.UpdatedDate,",
+						"          UpdatedBy = movie.UpdatedBy,",
 						"          CreatedBy = movie.CreatedBy,",
 						"          genres = movie.genres",
 						"     ),",
@@ -773,6 +774,12 @@
 						},
 						{
 							"name": "FixBudgetRuntime"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
@@ -814,8 +821,14 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> Select4Update",
 						"Select4Update derive(Budget = iif(Budget<1000000,1000000,toInteger(Budget)),",
-						"          Runtime = abs(RunTime)) ~> FixBudgetRuntime",
-						"FixBudgetRuntime sink(allowSchemaDrift: true,",
+						"          RunTime = abs(RunTime)) ~> FixBudgetRuntime",
+						"FixBudgetRuntime, Bronze join(toString(Select4Update@movie) == toString(Bronze@movie),",
+						"     joinType:'outer',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 derive(NewStatus = iif(isNull(Select4Update@movie),Status,\"loaded\")) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     skipDuplicateMapInputs: true,",
