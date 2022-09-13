@@ -444,7 +444,6 @@
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
-						"     filePattern:'bronze_[n]',",
 						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> sink1"
@@ -624,7 +623,6 @@
 						"     ignoreSpaces: false,",
 						"     broadcast: 'auto')~> JoinLangTable",
 						"JoinLangTable select(mapColumn(",
-						"          movie,",
 						"          Id,",
 						"          Title,",
 						"          Overview,",
@@ -641,7 +639,8 @@
 						"          Price,",
 						"          CreatedDate,",
 						"          UpdatedDate,",
-						"          CreatedBy",
+						"          CreatedBy,",
+						"          UpdatedBy",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> SelectSilverFinal",
@@ -754,6 +753,20 @@
 								"type": "DatasetReference"
 							},
 							"name": "Bronze"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobMovie",
+								"type": "LinkedServiceReference"
+							},
+							"name": "Lang"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureBlobMovie",
+								"type": "LinkedServiceReference"
+							},
+							"name": "SilverMovie"
 						}
 					],
 					"sinks": [
@@ -762,7 +775,14 @@
 								"referenceName": "silver",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "SinkBronze"
+						},
+						{
+							"dataset": {
+								"referenceName": "silver",
+								"type": "DatasetReference"
+							},
+							"name": "SinkSilver"
 						}
 					],
 					"transformations": [
@@ -776,10 +796,19 @@
 							"name": "FixBudgetRuntime"
 						},
 						{
-							"name": "join1"
+							"name": "JoinQ"
 						},
 						{
-							"name": "derivedColumn1"
+							"name": "DeriveStatus"
+						},
+						{
+							"name": "SelectBronze"
+						},
+						{
+							"name": "JoinLang"
+						},
+						{
+							"name": "SelectSilver"
 						}
 					],
 					"scriptLines": [
@@ -795,6 +824,22 @@
 						"     limit: 5000,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet') ~> Bronze",
+						"source(output(",
+						"          LangID as long,",
+						"          Lang as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet',",
+						"     container: 'data-factory-out',",
+						"     folderPath: 'SilverLanguage') ~> Lang",
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet',",
+						"     container: 'data-factory-out',",
+						"     folderPath: 'SilverMovie') ~> SilverMovie",
 						"Bronze filter(equals(Status,\"quarantined\")) ~> FilterQuarantined",
 						"FilterQuarantined select(mapColumn(",
 						"          movie,",
@@ -826,18 +871,60 @@
 						"     joinType:'outer',",
 						"     matchType:'exact',",
 						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1",
-						"join1 derive(NewStatus = iif(isNull(Select4Update@movie),Status,\"loaded\")) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     broadcast: 'auto')~> JoinQ",
+						"JoinQ derive(NewStatus = iif(isNull(Select4Update@movie),Status,\"loaded\")) ~> DeriveStatus",
+						"DeriveStatus select(mapColumn(",
+						"          movie = Bronze@movie,",
+						"          DataSource,",
+						"          IngestTime,",
+						"          IngestDate,",
+						"          Status = NewStatus",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectBronze",
+						"FixBudgetRuntime, Lang join(OriginalLanguage == Lang,",
+						"     joinType:'outer',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinLang",
+						"JoinLang select(mapColumn(",
+						"          Id,",
+						"          Title,",
+						"          Overview,",
+						"          Tagline,",
+						"          Budget,",
+						"          Revenue,",
+						"          ImdbUrl,",
+						"          TmdbUrl,",
+						"          PosterUrl,",
+						"          BackdropUrl,",
+						"          LangID,",
+						"          ReleaseDate,",
+						"          RunTime,",
+						"          Price,",
+						"          CreatedDate,",
+						"          UpdatedDate,",
+						"          UpdatedBy,",
+						"          CreatedBy",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SelectSilver",
+						"SelectBronze sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1"
+						"     skipDuplicateMapOutputs: true) ~> SinkBronze",
+						"SelectSilver sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> SinkSilver"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/bronze')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobMovie')]",
 				"[concat(variables('factoryId'), '/datasets/silver')]"
 			]
 		}
