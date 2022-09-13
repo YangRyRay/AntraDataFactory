@@ -118,7 +118,6 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> Bronze4Silver",
 				"Bronze4Silver filter(equals(Status,\"new\")) ~> FilterNew",
