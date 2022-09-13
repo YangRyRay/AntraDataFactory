@@ -139,6 +139,7 @@
 				"          Price = movie.Price,",
 				"          CreatedDate = movie.CreatedDate,",
 				"          UpdatedDate = movie.UpdatedDate,",
+				"          UpdatedBy = movie.UpdatedBy,",
 				"          CreatedBy = movie.CreatedBy,",
 				"          genres = movie.genres",
 				"     ),",
