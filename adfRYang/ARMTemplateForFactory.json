@@ -578,7 +578,6 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     limit: 100,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet') ~> Bronze4Silver",
 						"Bronze4Silver filter(equals(Status,\"new\")) ~> FilterNew",
@@ -767,10 +766,13 @@
 					],
 					"transformations": [
 						{
-							"name": "filter1"
+							"name": "FilterQuarantined"
 						},
 						{
-							"name": "select1"
+							"name": "Select4Update"
+						},
+						{
+							"name": "FixBudgetRuntime"
 						}
 					],
 					"scriptLines": [
@@ -783,11 +785,11 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     limit: 100,",
+						"     limit: 5000,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet') ~> Bronze",
-						"Bronze filter(equals(Status,\"quarantined\")) ~> filter1",
-						"filter1 select(mapColumn(",
+						"Bronze filter(equals(Status,\"quarantined\")) ~> FilterQuarantined",
+						"FilterQuarantined select(mapColumn(",
 						"          movie,",
 						"          Id = movie.Id,",
 						"          Title = movie.Title,",
@@ -810,8 +812,10 @@
 						"          genres = movie.genres",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
+						"     skipDuplicateMapOutputs: true) ~> Select4Update",
+						"Select4Update derive(Budget = iif(Budget<1000000,1000000,toInteger(Budget)),",
+						"          Runtime = abs(RunTime)) ~> FixBudgetRuntime",
+						"FixBudgetRuntime sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     skipDuplicateMapInputs: true,",
