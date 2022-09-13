@@ -29,7 +29,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "silver",
+						"referenceName": "bronze",
 						"type": "DatasetReference"
 					},
 					"name": "SinkBronze"
